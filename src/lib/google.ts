@@ -1,13 +1,13 @@
 import { google } from "googleapis";
-import { prisma } from "@/lib/prisma";
 
-export async function getGoogleClients(userId: string) {
-  const account = await prisma.account.findFirst({
-    where: { userId, provider: "google" },
-    orderBy: { id: "desc" },
-  });
+type Tokens = {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresAt?: number;
+};
 
-  if (!account?.access_token) return null;
+export async function getGoogleClients(tokens: Tokens) {
+  if (!tokens?.accessToken) return null;
 
   const auth = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -16,9 +16,9 @@ export async function getGoogleClients(userId: string) {
   );
 
   auth.setCredentials({
-    access_token: account.access_token,
-    refresh_token: account.refresh_token || undefined,
-    expiry_date: account.expires_at ? account.expires_at * 1000 : undefined,
+    access_token: tokens.accessToken,
+    refresh_token: tokens.refreshToken || undefined,
+    expiry_date: tokens.expiresAt ? tokens.expiresAt * 1000 : undefined,
   });
 
   return {

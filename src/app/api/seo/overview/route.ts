@@ -9,7 +9,11 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const projects = await prisma.project.findMany({ orderBy: { createdAt: "asc" } });
-  const googleClients = await getGoogleClients(session.user.id);
+  const googleClients = await getGoogleClients({
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken,
+    expiresAt: session.expiresAt,
+  });
 
   // fallback demo mode
   if (!googleClients) {
