@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGoogleClients } from "@/lib/google";
+import { requireUser } from "@/lib/requireUser";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: Request) {
+  const user = await requireUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const projects = await prisma.project.findMany({ orderBy: { createdAt: "asc" } });
+  const googleAccessToken = req.headers.get("x-google-access-token") || undefined;
   const googleClients = await getGoogleClients({
-    accessToken: session.accessToken,
-    refreshToken: session.refreshToken,
-    expiresAt: session.expiresAt,
+    accessToken: googleAccessToken,
   });
 
   // fallback demo mode
