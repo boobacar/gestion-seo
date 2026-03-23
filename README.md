@@ -1,6 +1,6 @@
 # gestion-seo
 
-Application SEO multi-projets (Next.js + Prisma + Supabase Auth) pour agréger Google Search Console + Google Analytics 4.
+Application SEO multi-projets (Next.js + Prisma + NextAuth Google) pour agréger Google Search Console + Google Analytics 4.
 
 ## Setup rapide
 
@@ -9,13 +9,11 @@ Application SEO multi-projets (Next.js + Prisma + Supabase Auth) pour agréger G
 cp .env.example .env
 ```
 
-2. Renseigner `.env`:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_APP_URL`
+2. Renseigner dans `.env`:
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
-- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
 
 3. Installer + DB
 ```bash
@@ -28,9 +26,14 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-## Auth
-- Email/password via Supabase
-- Google OAuth via Supabase (recommandé pour remonter les données GSC/GA4 via provider token)
+## OAuth Google requis
+Scopes:
+- `https://www.googleapis.com/auth/webmasters.readonly`
+- `https://www.googleapis.com/auth/analytics.readonly`
+- `openid email profile`
+
+Redirect URI dev:
+- `http://localhost:3000/api/auth/callback/google`
 
 ## Modèle projet
 - `name`
@@ -41,4 +44,4 @@ npm run dev
 
 ## Notes
 - Si token Google absent, l'API `/api/seo/overview` retourne un mode démo.
-- En prod Vercel, utilisez un Postgres (pas sqlite).
+- Les secrets ne doivent jamais être commités.
